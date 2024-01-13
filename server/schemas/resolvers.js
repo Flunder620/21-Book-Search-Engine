@@ -53,7 +53,15 @@ const resolvers = {
         }
     },
     deleteBook: async (parent,args,context) => {
-
+        try{
+            const updatedUser = await User.findOneAndUpdate(
+                { _id: context.user._id },
+                { $pull: { savedBooks: { bookId: args.bookId } } },//or bookId: args?
+                { new: true }
+              );
+        } catch(err) {
+            throw new AuthenticationError;
+        }
     }
   },
 };
