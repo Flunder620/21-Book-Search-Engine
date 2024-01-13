@@ -1,26 +1,37 @@
-const { AuthenticationError } = require('apollo-server-express');
-const { User } = require('../models');
+const { GraphQLError } = require('graphql');
+const jwt = require('jsonwebtoken');
 
-const authMiddleware = async (context) => {
+const secret = 'mysecretssshhhhhhh';
+const expiration = '2h';
 
-  const authHeader = context.req.headers.authorization;
-  
-  if (authHeader) {
-    const token = authHeader.split('Bearer ')[1];
+module.exports = {
+  AuthenticationError: new GraphQLError('Could not authenticate user.', {
+    extensions: {
+      code: 'UNAUTHENTICATED',
+    },
+  }),
+  authMiddleware: function ({ req }) {
+    let token = req.body.token || req.query.token || req.headers.authorization;
 
-    if (token) {
-      try {
-        const dummyUser = { _id: 'dummyId', email: 'dummy@example.com' };
-        return { user: dummyUser };
-      } catch (err) {
-        throw new AuthenticationError('Invalid or expired token');
-      }
+    if (req.headers.authorization) {
+      token = token.split(' ').pop().trim();
     }
 
-    throw new AuthenticationError('Authentication token must be in the format "Bearer [token]"');
-  }
+    if (!token) {
+      return req;
+    }
 
-  throw new AuthenticationError('Authorization header must be provided');
+    try {
+      const { data } = jwt.verify(token, secret, { maxAge: expiration });
+      req.user = data;
+    } catch {
+      console.log('Invalid token');
+    }
+
+    return req;
+  },
+  signToken: function ({ email, username, _id }) {
+    const payload = { email, username, _id };
+    return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+  },
 };
-
-module.exports = authMiddleware;
