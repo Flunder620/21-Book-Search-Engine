@@ -25,17 +25,17 @@ const resolvers = {
 
       return { token, user };
     },
-    login: async (parent, args, context) => {
-      const user = await User.findOne({ email: args.email });
+    login: async (parent, { email, password }) => {
+      const user = await User.findOne({ email });
 
       if (!user) {
-        throw new AuthenticationError("User not found");
+        throw AuthenticationError("User not found");
       }
 
-      const correctPw = await user.isCorrectPassword(args.password);
+      const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw new AuthenticationError("Wrong Password");
+        throw AuthenticationError("Wrong Password");
       }
 
       const token = signToken(user);
