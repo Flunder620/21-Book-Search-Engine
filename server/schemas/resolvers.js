@@ -5,7 +5,7 @@ const { signToken, AuthenticationError } = require("../utils/auth");
 
 const resolvers = {
   Query: {
-    getSingleUser: async (parent, args, context) => {
+    me: async (parent, args, context) => {
       const foundUser = await User.findOne({ _id: context.user._id });
 
       if (!foundUser) {
@@ -17,7 +17,7 @@ const resolvers = {
   },
 
   Mutation: {
-    createUser: async (parent, args, context) => {
+    addUser: async (parent, args, context) => {
       const user = await User.create(args);
       if (!user) {
         throw new AuthenticationError("Can't create user");
@@ -65,3 +65,5 @@ const resolvers = {
     }
   },
 };
+
+module.exports = resolvers;
