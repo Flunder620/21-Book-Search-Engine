@@ -25,7 +25,7 @@ const resolvers = {
 
       return { token, user };
     },
-    login: async (parent, args, context) => {
+    loginUser: async (parent, args, context) => {
       const user = await User.findOne({ email: args.email });
 
       if (!user) {
