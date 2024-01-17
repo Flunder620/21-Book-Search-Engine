@@ -9,8 +9,12 @@ import {
 } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
+import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+
+import {SAVE_BOOK} from '../utils/mutations'
+
+const [saveBook, {loading, data}] = useMutation(SAVE_BOOK)
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -72,7 +76,12 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await saveBook(bookToSave, token);
+      const response = await saveBook({
+        variables: {
+          bookToSave: bookToSave,
+          token: token
+        }
+      });
 
       if (!response.ok) {
         throw new Error('something went wrong!');
